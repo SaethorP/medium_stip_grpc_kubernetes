@@ -1,0 +1,5 @@
+namespace:
+  name: debit-card-api-regular
+
+stip:
+  enabled: false

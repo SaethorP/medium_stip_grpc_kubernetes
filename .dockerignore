@@ -1,0 +1,7 @@
+**/bin
+**/obj
+.git
+.gitignore
+.dockerignore
+README.md
+charts

@@ -1,34 +1,30 @@
+using DebitCardApi.BusinessLogic;
 using Grpc.Core;
 
 namespace DebitCardApi.Services;
 
-public class ReservationService(ILogger<ReservationService> logger) : Greeter.GreeterBase
+public class ReservationService(
+    IReservationBusinessLogic reservationBusinessLogic,
+    ILogger<ReservationService> logger) : Greeter.GreeterBase
 {
-    public override Task<GetReservationsReply> GetReservations(GetReservationsRequest request, ServerCallContext context)
+    public override async Task<GetReservationsReply> GetReservations(GetReservationsRequest request, ServerCallContext context)
     {
         logger.LogInformation("Getting reservations for card {CardNumber}", request.CardNumber);
 
-        return Task.FromResult(new GetReservationsReply());
+        return await reservationBusinessLogic.GetReservationsAsync(request);
     }
 
-    public override Task<RegisterReservationsReply> RegisterReservations(RegisterReservationsRequest request, ServerCallContext context)
+    public override async Task<RegisterReservationsReply> RegisterReservations(RegisterReservationsRequest request, ServerCallContext context)
     {
         logger.LogInformation("Registering reservation for card {CardNumber}", request.Reservation.CardNumber);
 
-        return Task.FromResult(new RegisterReservationsReply
-        {
-            ReservationId = Guid.NewGuid().ToString(),
-            Message = "Reservation registered"
-        });
+        return await reservationBusinessLogic.RegisterReservationsAsync(request);
     }
 
-    public override Task<SignReservationReply> SignReservation(SignReservationRequest request, ServerCallContext context)
+    public override async Task<SignReservationReply> SignReservation(SignReservationRequest request, ServerCallContext context)
     {
         logger.LogInformation("Signing reservation {ReservationId}", request.ReservationId);
 
-        return Task.FromResult(new SignReservationReply
-        {
-            Message = "Reservation signed"
-        });
+        return await reservationBusinessLogic.SignReservationAsync(request);
     }
 }

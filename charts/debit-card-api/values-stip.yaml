@@ -1,0 +1,5 @@
+namespace:
+  name: debit-card-api-stip
+
+stip:
+  enabled: true

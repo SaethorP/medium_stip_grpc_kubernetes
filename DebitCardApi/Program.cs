@@ -1,3 +1,5 @@
+using DebitCardApi.BusinessLogic;
+using DebitCardApi.DataLayer;
 using DebitCardApi.Services;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 
@@ -14,6 +16,18 @@ builder.WebHost.ConfigureKestrel(options =>
 
 // Add services to the container.
 builder.Services.AddGrpc();
+
+var stipEnabled = bool.TryParse(builder.Configuration["STIP_Enabled"], out var enabled) && enabled;
+if (stipEnabled)
+{
+    builder.Services.AddSingleton<IReservationDataLayer, StipReservationDataLayer>();
+    builder.Services.AddScoped<IReservationBusinessLogic, StipReservationBusinessLogic>();
+}
+else
+{
+    builder.Services.AddSingleton<IReservationDataLayer, InMemoryReservationDataLayer>();
+    builder.Services.AddScoped<IReservationBusinessLogic, ReservationBusinessLogic>();
+}
 
 var app = builder.Build();
 
