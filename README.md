@@ -42,15 +42,19 @@ These commands build the API image locally and install two Helm releases:
 
 ### 1. Build the Docker image
 
+Use a unique tag for each rebuild so Kubernetes gets a fresh image reference.
+
 PowerShell:
 
 ```powershell
-docker build -t debit-card-api:local .
+$env:IMAGE_TAG = "local"
+docker build -t "debit-card-api:$env:IMAGE_TAG" .
 ```
 
 Bash:
 
 ```bash
+export IMAGE_TAG=local
 ./scripts/build-image.sh
 ```
 
@@ -63,12 +67,13 @@ For kind:
 PowerShell:
 
 ```powershell
-kind load docker-image debit-card-api:local
+kind load docker-image "debit-card-api:$env:IMAGE_TAG"
 ```
 
 Bash:
 
 ```bash
+export IMAGE_TAG=local
 ./scripts/load-image-kind.sh
 ```
 
@@ -77,12 +82,13 @@ For minikube:
 PowerShell:
 
 ```powershell
-minikube image load debit-card-api:local
+minikube image load "debit-card-api:$env:IMAGE_TAG"
 ```
 
 Bash:
 
 ```bash
+export IMAGE_TAG=local
 ./scripts/load-image-minikube.sh
 ```
 
@@ -91,15 +97,18 @@ Bash:
 PowerShell:
 
 ```powershell
+$env:IMAGE_TAG = "local"
 helm upgrade --install debit-card-api-regular .\charts\debit-card-api `
   --namespace debit-card-api-regular `
   --create-namespace `
+  --set image.tag=$env:IMAGE_TAG `
   -f .\charts\debit-card-api\values-regular.yaml
 ```
 
 Bash:
 
 ```bash
+export IMAGE_TAG=local
 ./scripts/deploy-regular.sh
 ```
 
@@ -108,15 +117,18 @@ Bash:
 PowerShell:
 
 ```powershell
+$env:IMAGE_TAG = "local"
 helm upgrade --install debit-card-api-stip .\charts\debit-card-api `
   --namespace debit-card-api-stip `
   --create-namespace `
+  --set image.tag=$env:IMAGE_TAG `
   -f .\charts\debit-card-api\values-stip.yaml
 ```
 
 Bash:
 
 ```bash
+export IMAGE_TAG=local
 ./scripts/deploy-stip.sh
 ```
 
@@ -124,6 +136,38 @@ To install both releases with one bash command:
 
 ```bash
 ./scripts/deploy-all.sh
+```
+
+### 4b. Rebuild and redeploy the newest image
+
+When you change code, pick a new image tag, build again, load it into the cluster, and redeploy with the same tag.
+
+PowerShell example:
+
+```powershell
+$env:IMAGE_TAG = (git rev-parse --short HEAD)
+docker build -t "debit-card-api:$env:IMAGE_TAG" .
+kind load docker-image "debit-card-api:$env:IMAGE_TAG"
+helm upgrade --install debit-card-api-regular .\charts\debit-card-api `
+  --namespace debit-card-api-regular `
+  --create-namespace `
+  --set image.tag=$env:IMAGE_TAG `
+  -f .\charts\debit-card-api\values-regular.yaml
+helm upgrade --install debit-card-api-stip .\charts\debit-card-api `
+  --namespace debit-card-api-stip `
+  --create-namespace `
+  --set image.tag=$env:IMAGE_TAG `
+  -f .\charts\debit-card-api\values-stip.yaml
+```
+
+Bash example:
+
+```bash
+export IMAGE_TAG="$(git rev-parse --short HEAD)"
+./scripts/build-image.sh
+kind load docker-image "debit-card-api:${IMAGE_TAG}"
+IMAGE_TAG="${IMAGE_TAG}" ./scripts/deploy-regular.sh
+IMAGE_TAG="${IMAGE_TAG}" ./scripts/deploy-stip.sh
 ```
 
 ### 5. Verify both pods are running
