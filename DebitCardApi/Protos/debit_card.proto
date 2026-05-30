@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+option csharp_namespace = "DebitCardApi";
+
+package debitcard;
+
+service DebitCardService {
+  rpc CreatePayment (CreatePaymentRequest) returns (CreatePaymentReply);
+}
+
+message CreatePaymentRequest {
+  string card_number = 1;
+  double amount = 2;
+  string merchant = 3;
+}
+
+message CreatePaymentReply {
+  string payment_id = 1;
+  string message = 2;
+}

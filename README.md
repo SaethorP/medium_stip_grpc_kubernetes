@@ -3,7 +3,7 @@ This is a repo for the sample code and README for a medium post I am making.
 
 ## Projects
 
-- `DebitCardApi` is the gRPC API.
+- `DebitCardApi` is the gRPC API. It exposes `DebitCardService.CreatePayment`.
 - `DebitCardApi.Tests` contains xUnit tests for the API.
 - `charts/debit-card-api` contains the Helm chart.
 
