@@ -1,50 +1,56 @@
+{{- range $name, $variant := .Values.variants }}
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "debit-card-api.fullname" . }}
-  namespace: {{ .Values.namespace.name }}
+  name: {{ include "debit-card-api.fullname" $ }}-{{ $name }}
+  namespace: {{ $.Values.namespace.name }}
   labels:
-    {{- include "debit-card-api.labels" . | nindent 4 }}
+    {{- include "debit-card-api.labels" $ | nindent 4 }}
+    debit-card-api/variant: {{ $name }}
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{ $.Values.replicaCount }}
   selector:
     matchLabels:
-      {{- include "debit-card-api.selectorLabels" . | nindent 6 }}
+      {{- include "debit-card-api.selectorLabels" $ | nindent 6 }}
+      debit-card-api/variant: {{ $name }}
   template:
     metadata:
       labels:
-        {{- include "debit-card-api.selectorLabels" . | nindent 8 }}
+        {{- include "debit-card-api.selectorLabels" $ | nindent 8 }}
+        debit-card-api/variant: {{ $name }}
     spec:
       containers:
         - name: debit-card-api
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag }}"
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
           env:
             - name: STIP_Enabled
-              value: {{ .Values.stip.enabled | quote }}
+              value: {{ $variant.stipEnabled | quote }}
           ports:
             - name: grpc
-              containerPort: {{ .Values.service.port }}
+              containerPort: {{ $.Values.service.port }}
               protocol: TCP
           volumeMounts:
             - name: tls
               mountPath: /https
               readOnly: true
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+            {{- toYaml $.Values.resources | nindent 12 }}
       volumes:
         - name: tls
           secret:
-            secretName: {{ .Values.tls.secretName }}
-      {{- with .Values.nodeSelector }}
+            secretName: {{ $.Values.tls.secretName }}
+      {{- with $.Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.affinity }}
+      {{- with $.Values.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.tolerations }}
+      {{- with $.Values.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+{{- end }}

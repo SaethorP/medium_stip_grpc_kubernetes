@@ -4,6 +4,9 @@ namespace:
   create: true
   name: debit-card-api
 
+# Clean, stable resource names (service: debit-card-api, deployments: debit-card-api-<variant>).
+fullnameOverride: debit-card-api
+
 image:
   repository: debit-card-api
   tag: local
@@ -13,13 +16,22 @@ service:
   type: ClusterIP
   port: 50051
 
+# Which variant the router Service (and therefore the ingress host) sends traffic to.
+# Flip live without redeploying pods:
+#   helm upgrade debit-card-api ./charts/debit-card-api -n debit-card-api --reuse-values --set activeVariant=stip
+activeVariant: regular
+
+# Both variants run simultaneously; activeVariant decides which one is wired to the router.
+variants:
+  regular:
+    stipEnabled: false
+  stip:
+    stipEnabled: true
+
 ingress:
   enabled: true
   className: nginx
   host: debit-card-api.local
-
-stip:
-  enabled: false
 
 tls:
   createSelfSigned: true
