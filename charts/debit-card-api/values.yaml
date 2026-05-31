@@ -13,6 +13,11 @@ service:
   type: ClusterIP
   port: 50051
 
+ingress:
+  enabled: true
+  className: nginx
+  host: debit-card-api.local
+
 stip:
   enabled: false
 

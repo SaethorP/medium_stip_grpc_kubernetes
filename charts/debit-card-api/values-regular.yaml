@@ -1,5 +1,11 @@
 namespace:
   name: debit-card-api-regular
 
+ingress:
+  host: debit-card-api-regular.local
+
 stip:
   enabled: false
+
+tls:
+  commonName: debit-card-api-regular.local
