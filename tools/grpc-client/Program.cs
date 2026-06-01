@@ -56,7 +56,7 @@ Console.CancelKeyPress += (_, e) =>
     cts.Cancel();
 };
 
-Console.WriteLine($"--> {address}  DebitCardService/CreatePayment  ({dialDescription})  every {intervalMs}ms — press Ctrl+C to stop");
+Console.WriteLine($"--> {address}  DebitCardService/CreatePayment  ({dialDescription})  every {intervalMs}ms - press Ctrl+C to stop");
 
 using var channel = GrpcChannel.ForAddress(address, new GrpcChannelOptions { HttpHandler = handler });
 var client = new DebitCardService.DebitCardServiceClient(channel);
