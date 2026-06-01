@@ -4,7 +4,7 @@ set -euo pipefail
 VARIANT="${1:?usage: switch.sh <regular|stip>}"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 
 # Repoints the router Service selector to ${VARIANT} without touching the running pods.
 # Both variants stay up; only the traffic target changes.

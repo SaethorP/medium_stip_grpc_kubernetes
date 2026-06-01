@@ -9,7 +9,7 @@ set -euo pipefail
 # run:  RESOLVE_IP="" ./scripts/call-api.sh   to exercise real DNS resolution.
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 
 export API_HOST="${API_HOST:-debit-card-api.local}"
 export API_PORT="${API_PORT:-443}"

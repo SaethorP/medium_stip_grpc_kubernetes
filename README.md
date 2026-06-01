@@ -97,12 +97,17 @@ calls reach — in-flight calls finish on the old variant instead of being cut o
 > image. As long as you run build, load, and deploy at the same commit, they all
 > agree on the tag automatically. Override it any time with `IMAGE_TAG=...`.
 
+> **Scripts come in two flavors.** Bash scripts live in `scripts/bash/` and
+> PowerShell scripts in `scripts/powershell/`. Use whichever matches your shell —
+> on Windows, prefer the PowerShell ones (`.ps1`) so you don't need a working
+> `bash`.
+
 ### 1. Build the Docker image
 
 Bash:
 
 ```bash
-./scripts/build-image.sh          # builds debit-card-api:<git short sha>
+./scripts/bash/build-image.sh          # builds debit-card-api:<git short sha>
 ```
 
 PowerShell:
@@ -119,13 +124,13 @@ Docker Desktop Kubernetes can usually use the local image directly.
 For kind:
 
 ```bash
-./scripts/load-image-kind.sh        # PowerShell: kind load docker-image "debit-card-api:$env:IMAGE_TAG"
+./scripts/bash/load-image-kind.sh        # PowerShell: kind load docker-image "debit-card-api:$env:IMAGE_TAG"
 ```
 
 For minikube:
 
 ```bash
-./scripts/load-image-minikube.sh    # PowerShell: minikube image load "debit-card-api:$env:IMAGE_TAG"
+./scripts/bash/load-image-minikube.sh    # PowerShell: minikube image load "debit-card-api:$env:IMAGE_TAG"
 ```
 
 ### 3. Deploy both variants
@@ -137,22 +142,17 @@ Service, the ingress, and a self-signed TLS secret. `activeVariant` defaults to
 Bash:
 
 ```bash
-./scripts/deploy.sh
+./scripts/bash/deploy.sh
 ```
 
-PowerShell (equivalent of the script):
+PowerShell:
 
 ```powershell
-$env:IMAGE_TAG = (git rev-parse --short HEAD)
-helm upgrade --install debit-card-api .\charts\debit-card-api `
-  --namespace debit-card-api `
-  --create-namespace `
-  --set image.tag=$env:IMAGE_TAG `
-  --set activeVariant=regular
+.\scripts\powershell\deploy.ps1
 ```
 
-To start on the STIP variant instead, set `ACTIVE_VARIANT=stip` before
-`deploy.sh` (or `--set activeVariant=stip` in the PowerShell command).
+To start on the STIP variant instead, set `ACTIVE_VARIANT=stip` (bash) or
+`$env:ACTIVE_VARIANT = "stip"` (PowerShell) before running deploy.
 
 ### 4. Point your host at the ingress
 
@@ -174,16 +174,37 @@ Calling `CreatePayment` returns a plain payment id from the regular variant, or
 one prefixed with `STIP-` from the STIP variant — that is how you can tell which
 variant served the call.
 
+A ready-made test client is included. It calls the API in a loop and logs each
+response (and which variant served it) until you press Ctrl+C:
+
+```bash
+./scripts/bash/call-api.sh           # PowerShell: .\scripts\powershell\call-api.ps1
+```
+
+It dials `localhost:443` by default, so it works even before you add the hosts
+entry from step 4. Set `INTERVAL_MS` to change the delay between calls. Leave it
+running in one terminal and switch variants (step 6) in another to watch traffic
+move live.
+
 ### 6. Switch live traffic between variants
 
 Send traffic to STIP, then back to regular:
 
+Bash:
+
 ```bash
-./scripts/switch.sh stip       # PowerShell: bash scripts/switch.sh stip
-./scripts/switch.sh regular    # PowerShell: bash scripts/switch.sh regular
+./scripts/bash/switch.sh stip
+./scripts/bash/switch.sh regular
 ```
 
-`switch.sh` runs `helm upgrade --reuse-values --set activeVariant=<variant>`,
+PowerShell:
+
+```powershell
+.\scripts\powershell\switch.ps1 stip
+.\scripts\powershell\switch.ps1 regular
+```
+
+The switch runs `helm upgrade --reuse-values --set activeVariant=<variant>`,
 which repoints the router Service. No pods are restarted. Give nginx a couple of
 seconds to pick up the change; calls already in progress finish on the previous
 variant.
@@ -203,8 +224,8 @@ Bash:
 
 ```bash
 export IMAGE_TAG="$(git rev-parse --short HEAD)"
-./scripts/build-image.sh
-./scripts/load-image-kind.sh          # or load-image-minikube.sh
+./scripts/bash/build-image.sh
+./scripts/bash/load-image-kind.sh          # or load-image-minikube.sh
 helm upgrade debit-card-api ./charts/debit-card-api \
   --namespace debit-card-api \
   --reuse-values \
@@ -214,7 +235,7 @@ helm upgrade debit-card-api ./charts/debit-card-api \
 ### 8. Verify the deployment
 
 ```bash
-./scripts/verify-deployments.sh
+./scripts/bash/verify-deployments.sh
 ```
 
 This lists both deployments and pods (with a `VARIANT` column) and prints the
