@@ -97,10 +97,12 @@ calls reach — in-flight calls finish on the old variant instead of being cut o
 > image. As long as you run build, load, and deploy at the same commit, they all
 > agree on the tag automatically. Override it any time with `IMAGE_TAG=...`.
 
-> **Scripts come in two flavors.** Bash scripts live in `scripts/bash/` and
-> PowerShell scripts in `scripts/powershell/`. Use whichever matches your shell —
-> on Windows, prefer the PowerShell ones (`.ps1`) so you don't need a working
-> `bash`.
+> **Pick the scripts for your OS.** The same steps are provided in two flavors:
+> - **macOS / Linux** — bash scripts in `scripts/bash/` (e.g. `./scripts/bash/deploy.sh`)
+> - **Windows** — PowerShell scripts in `scripts/powershell/` (e.g. `.\scripts\powershell\deploy.ps1`)
+>
+> They do the same thing; use whichever matches your machine. The examples below
+> show both.
 
 ### 1. Build the Docker image
 
@@ -113,8 +115,7 @@ Bash:
 PowerShell:
 
 ```powershell
-$env:IMAGE_TAG = (git rev-parse --short HEAD)
-docker build -t "debit-card-api:$env:IMAGE_TAG" .
+.\scripts\powershell\build-image.ps1
 ```
 
 ### 2. Make the image available to your cluster
@@ -124,13 +125,13 @@ Docker Desktop Kubernetes can usually use the local image directly.
 For kind:
 
 ```bash
-./scripts/bash/load-image-kind.sh        # PowerShell: kind load docker-image "debit-card-api:$env:IMAGE_TAG"
+./scripts/bash/load-image-kind.sh        # PowerShell: .\scripts\powershell\load-image-kind.ps1
 ```
 
 For minikube:
 
 ```bash
-./scripts/bash/load-image-minikube.sh    # PowerShell: minikube image load "debit-card-api:$env:IMAGE_TAG"
+./scripts/bash/load-image-minikube.sh    # PowerShell: .\scripts\powershell\load-image-minikube.ps1
 ```
 
 ### 3. Deploy both variants
@@ -232,10 +233,30 @@ helm upgrade debit-card-api ./charts/debit-card-api \
   --set image.tag="${IMAGE_TAG}"
 ```
 
+PowerShell:
+
+```powershell
+$env:IMAGE_TAG = (git rev-parse --short HEAD)
+.\scripts\powershell\build-image.ps1
+.\scripts\powershell\load-image-kind.ps1          # or load-image-minikube.ps1
+helm upgrade debit-card-api .\charts\debit-card-api `
+  --namespace debit-card-api `
+  --reuse-values `
+  --set image.tag=$env:IMAGE_TAG
+```
+
 ### 8. Verify the deployment
+
+Bash:
 
 ```bash
 ./scripts/bash/verify-deployments.sh
+```
+
+PowerShell:
+
+```powershell
+.\scripts\powershell\verify-deployments.ps1
 ```
 
 This lists both deployments and pods (with a `VARIANT` column) and prints the
