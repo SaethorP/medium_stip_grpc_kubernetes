@@ -1,0 +1,32 @@
+@startuml stip-failover
+title Standing in for the backend during an outage
+
+actor "Customer\nat the terminal" as customer
+participant "Card terminal\n(gRPC client)" as client
+participant "Ingress + Router\n(debit-card-api.local)" as router
+participant "regular body\n(talks to backend)" as regular
+participant "stip body\n(stands in)" as stip
+database "Backend\n(authorisation)" as backend
+
+== Normal operation: activeVariant = regular ==
+customer -> client : tap card
+client -> router : CreatePayment
+router -> regular : route
+regular -> backend : authorise
+backend --> regular : approved
+regular --> client : payment created
+client --> customer : approved
+
+== Backend outage (maintenance / bad Friday deploy) ==
+regular -> backend : authorise
+backend --> regular : timeout / error
+note over regular: customers would start seeing errors here
+
+== One command flips the body: activeVariant = stip ==
+note over router: helm upgrade --reuse-values --set activeVariant=stip
+customer -> client : tap card
+client -> router : CreatePayment
+router -> stip : route (same contract, same address)
+stip --> client : STIP payment created
+client --> customer : approved (never noticed)
+@enduml

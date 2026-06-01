@@ -1,0 +1,28 @@
+@startuml reverse-hydra
+title Reverse Hydra — one contract (head), swappable bodies
+
+skinparam componentStyle rectangle
+skinparam shadowing false
+left to right direction
+
+actor "Card terminal\n(gRPC client)" as client
+
+rectangle "Kubernetes — debit-card-api namespace" {
+  component "Ingress\ndebit-card-api.local\n**the HEAD: one gRPC contract**" as head
+  component "Router Service\nselector: variant = <active>" as router
+  component "regular body\nDeployment\nSTIP_Enabled=false" as regular
+  component "stip body\nDeployment\nSTIP_Enabled=true" as stip
+}
+
+client --> head : gRPC over TLS\n(always the same address)
+head --> router
+router --> regular : activeVariant = regular
+router ..> stip   : activeVariant = stip\n(after a switch)
+
+note bottom of router
+  helm upgrade --reuse-values --set activeVariant=stip
+  repoints the selector. Both bodies keep running,
+  so in-flight calls finish on the old body and the
+  client never changes a thing.
+end note
+@enduml
