@@ -14,4 +14,4 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 export API_HOST="${API_HOST:-debit-card-api.local}"
 export API_PORT="${API_PORT:-443}"
 
-dotnet run --project "${REPO_ROOT}/tools/grpc-client" --verbosity quiet
+dotnet run --project "${REPO_ROOT}/DebitCardApi.Client" --verbosity quiet

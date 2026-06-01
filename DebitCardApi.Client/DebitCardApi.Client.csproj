@@ -5,12 +5,11 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <!-- Standalone helper; kept out of DebitCardApi.sln so 'dotnet test' ignores it. -->
   </PropertyGroup>
 
   <ItemGroup>
     <!-- Reuse the generated gRPC client/messages from the API project. -->
-    <ProjectReference Include="..\..\DebitCardApi\DebitCardApi.csproj" />
+    <ProjectReference Include="..\DebitCardApi\DebitCardApi.csproj" />
   </ItemGroup>
 
   <ItemGroup>

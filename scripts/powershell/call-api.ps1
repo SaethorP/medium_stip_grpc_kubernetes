@@ -11,4 +11,4 @@ $RepoRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 if (-not $env:API_HOST) { $env:API_HOST = "debit-card-api.local" }
 if (-not $env:API_PORT) { $env:API_PORT = "443" }
 
-dotnet run --project (Join-Path $RepoRoot "tools\grpc-client") --verbosity quiet
+dotnet run --project (Join-Path $RepoRoot "DebitCardApi.Client") --verbosity quiet

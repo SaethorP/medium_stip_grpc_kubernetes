@@ -9,7 +9,8 @@ address so you can **switch live traffic between them** with one command.
 ## Projects
 
 - `DebitCardApi` is the gRPC API. It exposes `DebitCardService.CreatePayment`.
-- `DebitCardApi.Tests` contains xUnit tests for the API.
+- `DebitCardApi.Client` is a small gRPC client that calls the API in a loop; the
+  `call-api` scripts run it.
 - `charts/debit-card-api` contains the Helm chart.
 
 ## Run Locally
@@ -32,12 +33,6 @@ dotnet run --project DebitCardApi\DebitCardApi.csproj
 
 `STIP_Enabled=true` selects the STIP business and data layers. `false` or unset
 selects the regular layers.
-
-## Test
-
-```powershell
-dotnet test DebitCardApi.sln
-```
 
 ## Deploy To Local Kubernetes
 
