@@ -1,10 +1,8 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-COPY DebitCardApi.sln ./
 COPY DebitCardApi/DebitCardApi.csproj DebitCardApi/
-COPY DebitCardApi.Tests/DebitCardApi.Tests.csproj DebitCardApi.Tests/
-RUN dotnet restore DebitCardApi.sln
+RUN dotnet restore DebitCardApi/DebitCardApi.csproj
 
 COPY . .
 RUN dotnet publish DebitCardApi/DebitCardApi.csproj \
